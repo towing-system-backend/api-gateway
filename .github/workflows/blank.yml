@@ -1,0 +1,26 @@
+name: Publish 
+
+on:
+  pull_request:
+    branches: [ "main", "development" ]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore ./api-gateway.sln
+
+      - name: Build
+        run: dotnet build ./api-gateway.sln --configuration Release --no-restore
+
+      - name: Publish 
+        run: dotnet publish ./api-gateway.sln --configuration Release --no-build

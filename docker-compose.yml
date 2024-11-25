@@ -1,0 +1,73 @@
+version: '3.4'
+
+services:
+  rabbit-queue:
+    image: rabbitmq:management
+    container_name: rabbit-queue
+    hostname: rabbitmq
+    networks:
+      - towing_system_net
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - ./containers/queue/data/:/var/lib/rabbitmq
+      - ./containers/queue/log/:/var/log/rabbitmq
+
+  datasync:
+    container_name: datasync
+    image: ${DOCKER_REGISTRY-}datasync
+    build:
+      context: ../datasync
+      dockerfile: /datasync/Dockerfile
+    networks:
+      - towing_system_net
+    env_file:
+        - ../datasync/datasync/.env
+    depends_on:
+      - rabbit-queue
+
+  api-gateway:
+    container_name: api-gateway
+    image: ${DOCKER_REGISTRY-}apigateway
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    networks:
+      - towing_system_net
+    ports:
+        - "9000:443"
+    env_file:
+        - ./api-gateway/.env
+    volumes:
+         - ./api-gateway/https/aspnetapp.pfx:/https/aspnetapp.pfx:ro 
+    depends_on:
+     - rabbit-queue
+     - datasync
+
+  users-microservice:
+    container_name: users-microservice
+    image: ${DOCKER_REGISTRY-}usersmicroservice
+    build:
+      context: ../users-microservice
+      dockerfile: /users-microservice/Dockerfile
+    networks:
+      - towing_system_net
+    ports:
+        - "9001:443"
+    env_file:
+        - ../users-microservice/users-microservice/.env
+    volumes:
+         - ../users-microservice/users-microservice/https/aspnetapp.pfx:/https/aspnetapp.pfx:ro 
+    depends_on: 
+     - rabbit-queue
+     - datasync
+     - api-gateway
+
+networks:
+  towing_system_net:
+    driver: bridge
+    external: true
