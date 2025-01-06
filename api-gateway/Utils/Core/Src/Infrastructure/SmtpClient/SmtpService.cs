@@ -15,7 +15,7 @@ namespace Application.Core
 
             var smtpClient = new SmtpClient(smtpHost)
             {
-                Port = 587,
+                Port = int.Parse( Environment.GetEnvironmentVariable("SMTP_PORT")!),
                 Credentials = new NetworkCredential(from, password),
                 EnableSsl = true,
             };

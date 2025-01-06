@@ -15,9 +15,16 @@ namespace Auth.Application
 
             var credentials = account.Unwrap();
 
-            var updatedAccount = new Account(credentials.UserId, credentials.Email, _cryptoService.Hash(command.NewPassword), null);
-
-            await _accountRepository.Save(updatedAccount);
+            await _accountRepository.Save(
+                new Account(
+                    credentials.UserId,
+                    credentials.DeviceId,
+                    credentials.Email,
+                    credentials.Role,
+                    _cryptoService.Hash(command.NewPassword),
+                    null
+                )
+            );
 
             return Result<ResetPasswordResponse>.MakeSuccess(new ResetPasswordResponse(credentials.UserId));
         }

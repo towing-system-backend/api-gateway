@@ -1,6 +1,11 @@
-namespace Auth.Application
+﻿namespace RabbitMQ.Contracts
 {
-    public record SignUpCommand(
+    public record EventType(
+        object Context
+    );
+
+    public record CreateUser(
+        string Id,
         string SupplierCompanyId,
         string Name,
         string Image,

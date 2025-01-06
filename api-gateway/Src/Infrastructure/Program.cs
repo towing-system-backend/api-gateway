@@ -2,6 +2,7 @@ using Application.Core;
 using Auth.Application;
 using Auth.Infrastructure;
 using DotNetEnv;
+using MassTransit;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
@@ -14,8 +15,16 @@ builder.Services.AddScoped<ITokenService<string>, JwtService>();
 builder.Services.AddScoped<IPasswordService, PasswordGenerator>();
 builder.Services.AddScoped<ICryptoService, BcryptService>();
 builder.Services.AddTransient<IEmailService<EmailInfo>, SmtpService>();
+builder.Services.AddScoped<IMessageBrokerService, RabbitMQService>();
 builder.Services.AddSingleton<IAccountRepository, MongoAccountRepository>();
+builder.Services.AddScoped<Logger, DotNetLogger>();
+builder.Services.AddScoped<IPerformanceLogsRepository, MongoPerformanceLogsRespository>();
 builder.Services.AddControllers();
+
+var certSection = builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate");
+certSection["Path"] = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel_CertificatesDefault_Path")!;
+certSection["Password"] = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel_CertificatesDefault_Password")!;
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "Auth API", Version = "v1" });
@@ -27,7 +36,7 @@ builder.Services.AddReverseProxy()
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("admin-access", p => p.RequireAuthenticatedUser().RequireClaim(ClaimTypes.Role, "admin"));
+    options.AddPolicy("admin-access", p => p.RequireAuthenticatedUser().RequireClaim(ClaimTypes.Role, "Admin"));
     
 });
 builder.Services.AddAuthentication("Bearer")
@@ -43,6 +52,22 @@ builder.Services.AddAuthentication("Bearer")
             RoleClaimType = ClaimTypes.Role
         };
     });
+
+builder.Services.AddMassTransit(busConfigurator =>
+{
+    busConfigurator.SetKebabCaseEndpointNameFormatter();
+    busConfigurator.UsingRabbitMq((context, configurator) =>
+    {
+        configurator.Host(new Uri(Environment.GetEnvironmentVariable("RABBITMQ_URI")!), h =>
+        {
+            h.Username(Environment.GetEnvironmentVariable("RABBITMQ_USERNAME")!);
+            h.Password(Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD")!);
+        });
+
+        configurator.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+        configurator.ConfigureEndpoints(context);
+    });
+});
 
 var app = builder.Build();
 

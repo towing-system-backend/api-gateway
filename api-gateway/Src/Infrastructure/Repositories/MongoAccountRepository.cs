@@ -25,7 +25,9 @@ namespace Auth.Infrastructure
             return IOptional.Of(
                 new Account(
                     res.UserId,
+                    res.DeviceId,
                     res.Email,
+                    res.Role,
                     res.Password,
                     res.PasswordExpirationDate
                 )
@@ -36,9 +38,12 @@ namespace Auth.Infrastructure
         {
             var filter = Builders<MongoAccount>.Filter.Eq(account => account.UserId, account.UserId);
             var update = Builders<MongoAccount>.Update
+                .Set(account => account.DeviceId, account.DeviceId)
                 .Set(account => account.Email, account.Email)
+                .Set(account => account.Role, account.Role)
                 .Set(account => account.Password, account.Password)
-                .Set(account => account.PasswordExpirationDate, account.PasswordExpirationDate ?? null);
+                .Set(account => account.PasswordExpirationDate, account.PasswordExpirationDate ?? null)
+                .SetOnInsert(a => a.CreatedAt, DateTime.Now);
 
             await _accountCollection.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
         }
