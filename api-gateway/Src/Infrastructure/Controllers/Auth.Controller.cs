@@ -1,5 +1,6 @@
 ﻿using Application.Core;
 using Auth.Application;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Auth.Infrastructure
@@ -37,6 +38,7 @@ namespace Auth.Infrastructure
         }
 
         [HttpPost("signup")]
+        [Authorize(Roles = "Admin, Provider")]
         public async Task<ObjectResult> SignUp([FromBody] SignUpDto signUpDto)
         {
             var command = new SignUpCommand(

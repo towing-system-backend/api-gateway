@@ -39,7 +39,7 @@ services:
     networks:
         - towing_system_net
     ports:
-        - "9000:443"
+        - "9000:80"
     env_file:
         - ./api-gateway/.env
     volumes:
@@ -57,7 +57,7 @@ services:
     networks:
         - towing_system_net
     ports:
-        - "9001:443"
+        - "9001:80"
     env_file:
         - ../users-microservice/users-microservice/.env
     volumes:
@@ -76,7 +76,7 @@ services:
     networks:
         - towing_system_net
     ports:
-        - "9002:443"
+        - "9002:80"
     env_file:
         - ../supplier-companies-microservice/supplier-companies-microservice/.env
     volumes:
@@ -95,7 +95,7 @@ services:
     networks:
         - towing_system_net
     ports: 
-        - "9003:443"
+        - "9003:80"
     env_file:
         - ../orders-microservice/orders-microservice/.env
     volumes:
@@ -114,7 +114,7 @@ services:
     networks:
         - towing_system_net
     ports:
-        - "9004:443"
+        - "9004:80"
     env_file:
         - ../tow-drivers-microservice/tow-drivers-microservice/.env
     volumes:

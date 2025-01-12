@@ -17,8 +17,7 @@ namespace Application.Core
                 Subject = new ClaimsIdentity(
                     [
                         new Claim(JwtRegisteredClaimNames.Sub, payload),
-                        new Claim("role", role)
-
+                        new Claim(ClaimTypes.Role, role),
                     ]
                 ),
                 Expires = DateTime.UtcNow.AddMinutes(configuration.GetValue<int>("Jwt:ExpirationInMinutes")),
