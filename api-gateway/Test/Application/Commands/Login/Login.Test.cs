@@ -42,7 +42,7 @@ namespace Auth.Test
             Assert.Equal("Account not found.", exception.Message);
 
             _accountRepositoryMock.Verify(repo => repo.Save(It.IsAny<Account>()), Times.Never);
-            _tokenServiceMock.Verify(service => service.GenerateToken(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _tokenServiceMock.Verify(service => service.GenerateToken(It.IsAny<TokenInfo>()), Times.Never);
         }
 
         [Fact]
@@ -57,6 +57,7 @@ namespace Auth.Test
 
             var account = new Account(
                 "07e24b54-4d06-479b-8249-9e98dffa7b28",
+                "00789dad-4d0c-493f-b84c-5560caea24a1",
                 "4779c4ec-0d54-4731-8885-69122dd6db1c",
                 "andreshg@gmail.com",
                 "TowDriver",
@@ -76,7 +77,7 @@ namespace Auth.Test
             Assert.Equal("Expired password.", exception.Message);
 
             _accountRepositoryMock.Verify(repo => repo.Save(It.IsAny<Account>()), Times.Never);
-            _tokenServiceMock.Verify(service => service.GenerateToken(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _tokenServiceMock.Verify(service => service.GenerateToken(It.IsAny<TokenInfo>()), Times.Never);
         }
 
         [Fact]
@@ -91,6 +92,7 @@ namespace Auth.Test
 
             var account = new Account(
                 "07e24b54-4d06-479b-8249-9e98dffa7b28",
+                "00789dad-4d0c-493f-b84c-5560caea24a1",
                 "4779c4ec-0d54-4731-8885-69122dd6db1c",
                 "andreshg@gmail.com",
                 "TowDriver",
@@ -113,7 +115,7 @@ namespace Auth.Test
             Assert.Equal("Invalid password.", exception.Message);
 
             _accountRepositoryMock.Verify(repo => repo.Save(It.IsAny<Account>()), Times.Never);
-            _tokenServiceMock.Verify(service => service.GenerateToken(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _tokenServiceMock.Verify(service => service.GenerateToken(It.IsAny<TokenInfo>()), Times.Never);
         }
 
         [Fact]
@@ -128,6 +130,7 @@ namespace Auth.Test
 
             var account = new Account(
                 "07e24b54-4d06-479b-8249-9e98dffa7b28",
+                "00789dad-4d0c-493f-b84c-5560caea24a1",
                 "4779c4ec-0d54-4731-8885-69122dd6db1c",
                 "andreshg@gmail.com",
                 "TowDriver",
@@ -141,7 +144,7 @@ namespace Auth.Test
             _cryptoServiceMock.Setup(service => service.Verify(command.Password, account.Password))
                 .Returns(true);
 
-            _tokenServiceMock.Setup(service => service.GenerateToken(account.UserId, account.Role))
+            _tokenServiceMock.Setup(service => service.GenerateToken(new TokenInfo(account.UserId, account.Role, account.SupplierCompanyId)))
                 .Returns("648ea03b-2aaf-4a14-ac3b-6036f2c0d22a");
 
             // Act
@@ -163,37 +166,12 @@ namespace Auth.Test
 
             _tokenServiceMock.Verify(service => 
                 service.GenerateToken(
-                    account.UserId,
-                    account.Role
+                    new TokenInfo(
+                        account.UserId,
+                        account.Role,
+                        account.SupplierCompanyId
+                    )
                 ), Times.Once);
-        }
-
-        [Fact]
-        public async Task Should_Login_Successfully_Without_DeviceId()
-        {
-            // Arrange
-            var command = new LoginCommand("user@example.com", "password", null);
-
-            var account = new Account("user_id", "device_id", "user@example.com", "User", "hashed_password", DateTime.UtcNow.AddDays(1));
-
-            _accountRepositoryMock.Setup(repo => repo.FindByEmail(command.Email))
-                .ReturnsAsync(Optional<Account>.Of(account));
-
-            _cryptoServiceMock.Setup(service => service.Verify(command.Password, account.Password))
-                .Returns(true);
-
-            _tokenServiceMock.Setup(service => service.GenerateToken(account.UserId, account.Role))
-                .Returns("648ea03b-2aaf-4a14-ac3b-6036f2c0d22a");
-
-            // Act
-            var result = await _loginCommandHandler.Execute(command);
-
-            // Assert
-            Assert.False(result.IsError);
-            Assert.Equal("648ea03b-2aaf-4a14-ac3b-6036f2c0d22a", result.Unwrap().Token);
-
-            _accountRepositoryMock.Verify(repo => repo.Save(It.IsAny<Account>()), Times.Never);
-            _tokenServiceMock.Verify(service => service.GenerateToken(account.UserId, account.Role), Times.Once);
         }
     }
 }

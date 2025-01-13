@@ -20,12 +20,19 @@ namespace Auth.Application
             if (!_cryptoService.Verify(command.Password, credentials.Password))
                 return Result<LoginResponse>.MakeError(new InvalidPasswordError());
 
-            var token = _tokenService.GenerateToken(credentials.UserId, credentials.Role);
+            var token = _tokenService.GenerateToken(
+                new TokenInfo(
+                    credentials.UserId,
+                    credentials.Role,
+                    credentials.SupplierCompanyId
+                )
+            );
 
             if (command.DeviceId != null)
                 await _accountRepository.Save(
                     new Account(
                         credentials.UserId,
+                        credentials.SupplierCompanyId,
                         command.DeviceId,
                         credentials.Email,
                         credentials.Role,

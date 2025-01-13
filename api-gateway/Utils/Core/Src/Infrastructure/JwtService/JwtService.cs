@@ -7,7 +7,7 @@ namespace Application.Core
 {
     public class JwtService(IConfiguration configuration) : ITokenService<string>
     {
-        public string GenerateToken(string payload, string role)
+        public string GenerateToken(TokenInfo tokenInfo)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -16,8 +16,9 @@ namespace Application.Core
             {
                 Subject = new ClaimsIdentity(
                     [
-                        new Claim(JwtRegisteredClaimNames.Sub, payload),
-                        new Claim(ClaimTypes.Role, role),
+                        new Claim(JwtRegisteredClaimNames.Sub, tokenInfo.Payload),
+                        new Claim(ClaimTypes.Role, tokenInfo.Role),
+                        new Claim("supplierCompanyId", tokenInfo.SupplierCompanyId)
                     ]
                 ),
                 Expires = DateTime.UtcNow.AddMinutes(configuration.GetValue<int>("Jwt:ExpirationInMinutes")),

@@ -24,6 +24,7 @@ namespace Auth.Application
             await _accountRepository.Save(
                 new Account(
                     id,
+                    command.SupplierCompanyId,
                     null,
                     command.Email,
                     command.Role,

@@ -57,6 +57,7 @@ namespace Auth.Tests
 
             var account = new Account(
                 "07e24b54-4d06-479b-8249-9e98dffa7b28",
+                "00789dad-4d0c-493f-b84c-5560caea24a1",
                 "4779c4ec-0d54-4731-8885-69122dd6db1c",
                 "andreshg@gmail.com",
                 "TowDriver",
@@ -90,6 +91,7 @@ namespace Auth.Tests
 
             var account = new Account(
                 "07e24b54-4d06-479b-8249-9e98dffa7b28",
+                "00789dad-4d0c-493f-b84c-5560caea24a1",
                 "4779c4ec-0d54-4731-8885-69122dd6db1c",
                 "andreshg@gmail.com",
                 "TowDriver",
