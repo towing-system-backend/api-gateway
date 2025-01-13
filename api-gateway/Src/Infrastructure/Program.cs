@@ -9,6 +9,7 @@ builder.Services.ConfigureServices();
 builder.Services.ConfigureAuthorization();
 builder.Services.ConfigureAuthentication(builder.Configuration);
 builder.Services.ConfigureMassTransit(builder.Configuration);
+builder.Services.ConfigureCors();
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<GlobalExceptionFilter>();
@@ -27,6 +28,7 @@ app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
 app.UseSwagger();
+app.UseCors("AllowSpecificOrigin");
 
 app.MapGet("api/auth/health", () => Results.Ok("ok"));
 app.MapReverseProxy().RequireAuthorization();

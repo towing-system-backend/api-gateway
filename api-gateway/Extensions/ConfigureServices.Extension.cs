@@ -96,6 +96,17 @@ namespace Auth.Extensions
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Auth v1");
                 c.RoutePrefix = string.Empty; 
             });
-        } 
+        }
+
+        public static void ConfigureCors(this IServiceCollection services) 
+        {
+            services.AddCors(options => 
+            { 
+                options.AddPolicy("AllowSpecificOrigin", builder =>
+                { 
+                    builder.WithOrigins(Environment.GetEnvironmentVariable("FRONTEND_URL")!).AllowAnyHeader().AllowAnyMethod(); 
+                }); 
+            }); 
+        }
     }
 }
