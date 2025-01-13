@@ -2,10 +2,11 @@
 
 namespace Auth.Infrastructure
 {
-    public class MongoAccount(string userId, string deviceId, string email, string role, string password, DateTime? passwordExpirationDate)
+    public class MongoAccount(string userId, string supplierCompanyId, string deviceId, string email, string role, string password, DateTime? passwordExpirationDate)
     {
         [BsonId]
         public string UserId = userId;
+        public string SupplierCompanyId = supplierCompanyId;
         public string? DeviceId = deviceId;
         public string Email = email;
         public string Role = role;

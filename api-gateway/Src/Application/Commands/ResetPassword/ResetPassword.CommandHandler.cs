@@ -18,6 +18,7 @@ namespace Auth.Application
             await _accountRepository.Save(
                 new Account(
                     credentials.UserId,
+                    credentials.SupplierCompanyId,
                     credentials.DeviceId,
                     credentials.Email,
                     credentials.Role,

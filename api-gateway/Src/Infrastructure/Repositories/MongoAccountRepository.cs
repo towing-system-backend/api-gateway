@@ -25,6 +25,7 @@ namespace Auth.Infrastructure
             return IOptional.Of(
                 new Account(
                     res.UserId,
+                    res.SupplierCompanyId,
                     res.DeviceId,
                     res.Email,
                     res.Role,
@@ -38,6 +39,7 @@ namespace Auth.Infrastructure
         {
             var filter = Builders<MongoAccount>.Filter.Eq(account => account.UserId, account.UserId);
             var update = Builders<MongoAccount>.Update
+                .Set(account => account.SupplierCompanyId, account.SupplierCompanyId)
                 .Set(account => account.DeviceId, account.DeviceId)
                 .Set(account => account.Email, account.Email)
                 .Set(account => account.Role, account.Role)
