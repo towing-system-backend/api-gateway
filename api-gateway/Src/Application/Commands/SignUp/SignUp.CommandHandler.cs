@@ -16,7 +16,6 @@ namespace Auth.Application
         {
             var account = await _accountRepository.FindByEmail(command.Email);
             if (account.HasValue()) return Result<SignUpResponse>.MakeError(new UserAlreadyExistsError());
-
             var id = _idService.GenerateId();
             var password = _passwordService.GeneratePassword();
             var hashedPassword = _cryptoService.Hash(password);
