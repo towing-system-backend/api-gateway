@@ -36,6 +36,7 @@ app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSwagger();
+app.UseCors("AllowAll");
 
 app.MapGet("api/auth/health", () => Results.Ok("ok"));
 
