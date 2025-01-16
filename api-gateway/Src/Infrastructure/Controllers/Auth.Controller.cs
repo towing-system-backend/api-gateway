@@ -66,5 +66,27 @@ namespace Auth.Infrastructure
 
             return Ok(res.Unwrap());
         }
+
+        [HttpPost("reset-password")]
+        public async Task<ObjectResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
+        {
+            var command = new ResetPasswordCommand(
+                resetPasswordDto.Email,
+                resetPasswordDto.NewPassword,
+                resetPasswordDto.NewPasswordConfirmation
+            );
+            
+            var handler =
+                new ExceptionCatcher<ResetPasswordCommand, ResetPasswordResponse>(
+                    new PerfomanceMonitor<ResetPasswordCommand, ResetPasswordResponse>(
+                        new LoggingAspect<ResetPasswordCommand, ResetPasswordResponse>(
+                            new ResetPasswordCommandHandler(_cryptoService, _accountRepository), _logger
+                        ), _logger, _performanceLogsRepository, nameof(ResetPasswordCommandHandler), "Write"
+                    ), ExceptionParser.Parse
+                );
+            var res = await handler.Execute(command);
+
+            return Ok(res.Unwrap());
+        }
     }
 }
