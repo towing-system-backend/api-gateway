@@ -10,5 +10,10 @@ namespace Application.Core
         {
             await _publishEndpoint.Publish(@event); 
         }
+
+        public async Task Publish(CreateTowDriver @event)
+        {
+            await _publishEndpoint.Publish(@event); 
+        }
     }
 } 
