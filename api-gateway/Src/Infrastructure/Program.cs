@@ -24,11 +24,11 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-app.UseAuthentication();
 app.UseRouting();
+app.UseCors("AllowSpecificOrigin");
+app.UseAuthentication();
 app.UseAuthorization();
 app.UseSwagger();
-app.UseCors("AllowSpecificOrigin");
 
 app.MapGet("api/auth/health", () => Results.Ok("ok"));
 app.MapReverseProxy().RequireAuthorization();
