@@ -7,7 +7,7 @@ namespace Auth.Infrastructure
 {
     [ApiController]
     [Route("api/auth")]
-    public class AuthController(IdService<string> idService, Logger logger, ITokenService<string> tokenService, ICryptoService cryptoService, IPasswordService passwordService, IEmailService<EmailInfo> emailInfo, IMessageBrokerService messageBrokerService, IAccountRepository accountRepository, IPerformanceLogsRepository performanceLogsRepository) : ControllerBase
+    public class AuthController(IdService<string> idService, Logger logger, ITokenService<string> tokenService, ICryptoService cryptoService, IPasswordService passwordService, IEmailService<EmailInfo> emailInfo, IMessageBrokerService messageBrokerService, IAccountRepository accountRepository, IPerformanceLogsRepository performanceLogsRepository, IImagesCloudService<string> imagesService) : ControllerBase
     {
         private readonly IdService<string> _idService = idService;
         private readonly Logger _logger = logger;
@@ -15,6 +15,7 @@ namespace Auth.Infrastructure
         private readonly ICryptoService _cryptoService = cryptoService;
         private readonly IPasswordService _passwordService = passwordService;
         private readonly IEmailService<EmailInfo> _emailService = emailInfo;
+        private readonly IImagesCloudService<string> _imagesService = imagesService;
         private readonly IMessageBrokerService _messageBrokerService = messageBrokerService;
         private readonly IAccountRepository _accountRepository = accountRepository;
         private readonly IPerformanceLogsRepository _performanceLogsRepository = performanceLogsRepository;
@@ -39,19 +40,20 @@ namespace Auth.Infrastructure
 
         [HttpPost("signup")]
         [Authorize(Roles = "Admin, Provider")]
-        public async Task<ObjectResult> SignUp([FromBody] SignUpDto signUpDto)
+        [Consumes("multipart/form-data")]
+        public async Task<ObjectResult> SignUp([FromForm] SignUpDto signUpDto)
         {
+            var image = await _imagesService.UploadImage(signUpDto.Image);
             var command = new SignUpCommand(
                 signUpDto.SupplierCompanyId,
                 signUpDto.Name,
-                signUpDto.Image,
+                image,
                 signUpDto.Email,
                 signUpDto.Role,
                 signUpDto.Status,
                 signUpDto.PhoneNumber,
                 signUpDto.IdentificationNumber
             );
-
             var handler =
                 new ExceptionCatcher<SignUpCommand, SignUpResponse>(
                     new PerfomanceMonitor<SignUpCommand, SignUpResponse>(

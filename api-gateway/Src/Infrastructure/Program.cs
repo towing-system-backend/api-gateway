@@ -15,6 +15,13 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<GlobalExceptionFilter>();
 });
 builder.Services.AddSwagger();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("admin", policy =>
+    {
+        policy.RequireRole("Admin");
+    });
+});
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 var app = builder.Build();
@@ -24,6 +31,7 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
+
 app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
@@ -31,6 +39,7 @@ app.UseSwagger();
 app.UseCors("AllowSpecificOrigin");
 
 app.MapGet("api/auth/health", () => Results.Ok("ok"));
+
 app.MapReverseProxy().RequireAuthorization();
 app.MapControllerRoute(
     name: "default",
