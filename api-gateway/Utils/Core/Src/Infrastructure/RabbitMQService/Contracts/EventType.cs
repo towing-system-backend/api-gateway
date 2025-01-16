@@ -1,5 +1,7 @@
 ﻿namespace RabbitMQ.Contracts
 {
+    public interface IRabbitMQMessage { };
+
     public record EventType(
         object Context
     );
@@ -14,5 +16,20 @@
         string Status,
         string PhoneNumber,
         int IdentificationNumber
-    );
+    ): IRabbitMQMessage;
+
+    public record CreateTowDriver(
+        string Id,
+        string SupplierCompanyId,
+        string Name,
+        string Email,
+        string LicenseOwnerName,
+        DateOnly LicenseIssueDate,
+        DateOnly LicenseExpirationDate,
+        string MedicalCertificateOwnerName,
+        int MedicalCertificateAge,
+        DateOnly MedicalCertificateIssueDate,
+        DateOnly MedicalCertificateExpirationDate,
+        int IdentificationNumber
+    ): IRabbitMQMessage;
 }
