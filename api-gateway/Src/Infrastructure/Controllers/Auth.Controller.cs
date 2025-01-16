@@ -38,6 +38,36 @@ namespace Auth.Infrastructure
             return Ok(res.Unwrap());
         }
 
+        [HttpPost("register/towdriver")]
+        [Authorize(Roles = "Admin, Provider")]
+        public async Task<ObjectResult> RegisterTowDriver([FromBody] CreateTowDriverDto createTowDriverDto)
+        {
+            var command = new RegisterTowDriverCommand(
+                createTowDriverDto.SupplierCompanyId,
+                createTowDriverDto.Name,
+                createTowDriverDto.Email,
+                createTowDriverDto.LicenseOwnerName,
+                createTowDriverDto.LicenseIssueDate,
+                createTowDriverDto.LicenseExpirationDate,
+                createTowDriverDto.MedicalCertificateOwnerName,
+                createTowDriverDto.MedicalCertificateAge,
+                createTowDriverDto.MedicalCertificateIssueDate,
+                createTowDriverDto.MedicalCertificateExpirationDate,
+                createTowDriverDto.IdentificationNumber
+            );
+            var handler =
+                new ExceptionCatcher<RegisterTowDriverCommand, RegisterTowDriverResponse>(
+                    new PerfomanceMonitor<RegisterTowDriverCommand, RegisterTowDriverResponse>(
+                        new LoggingAspect<RegisterTowDriverCommand, RegisterTowDriverResponse>(
+                            new RegisterTowDriverCommandHandler(_idService, _passwordService, _cryptoService, _emailService, _messageBrokerService, _accountRepository), _logger
+                        ), _logger, _performanceLogsRepository, nameof(RegisterTowDriverCommandHandler), "Write"
+                    ), ExceptionParser.Parse
+                );
+            var res = await handler.Execute(command);
+
+            return Ok(res.Unwrap());
+        }
+
         [HttpPost("signup")]
         [Authorize(Roles = "Admin, Provider")]
         [Consumes("multipart/form-data")]
