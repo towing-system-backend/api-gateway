@@ -6,16 +6,16 @@ services:
     container_name: rabbit-queue
     hostname: rabbitmq
     networks:
-        - towing_system_net
+      - towing_system_net
     ports:
-        - "15672:15672"
-        - "5672:5672"
+      - "15672:15672"
+      - "5672:5672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     volumes:
-        - ./containers/queue/data/:/var/lib/rabbitmq
-        - ./containers/queue/log/:/var/log/rabbitmq
+      - ./containers/queue/data/:/var/lib/rabbitmq
+      - ./containers/queue/log/:/var/log/rabbitmq
 
   datasync:
     container_name: datasync
@@ -24,11 +24,11 @@ services:
       context: ../datasync
       dockerfile: /datasync/Dockerfile
     networks:
-        - towing_system_net
+      - towing_system_net
     env_file:
-        - ../datasync/datasync/.env
+      - ../datasync/datasync/.env
     depends_on:
-        - rabbit-queue
+      - rabbit-queue
 
   api-gateway:
     container_name: api-gateway
@@ -37,16 +37,16 @@ services:
       context: .
       dockerfile: api-gateway/Dockerfile
     networks:
-        - towing_system_net
+      - towing_system_net
     ports:
-        - "9000:80"
+      - "9000:80"
     env_file:
-        - ./api-gateway/.env
+      - ./api-gateway/.env
     volumes:
-        - ./api-gateway/https:/app/https:ro
+      - ./api-gateway/https:/app/https:ro
     depends_on:
-        - rabbit-queue
-        - datasync
+      - rabbit-queue
+      - datasync
 
   users-microservice:
     container_name: users-microservice
@@ -55,17 +55,17 @@ services:
       context: ../users-microservice
       dockerfile: /users-microservice/Dockerfile
     networks:
-        - towing_system_net
+      - towing_system_net
     ports:
-        - "9001:80"
+      - "9001:80"
     env_file:
-        - ../users-microservice/users-microservice/.env
+      - ../users-microservice/users-microservice/.env
     volumes:
-        - ../users-microservice/users-microservice/https:/app/https:ro
-    depends_on: 
-        - rabbit-queue
-        - datasync
-        - api-gateway
+      - ../users-microservice/users-microservice/https:/app/https:ro
+    depends_on:
+      - rabbit-queue
+      - datasync
+      - api-gateway
 
   supplier-companies-microservice:
     container_name: supplier-companies-microservice
@@ -74,57 +74,76 @@ services:
       context: ../supplier-companies-microservice
       dockerfile: /supplier-companies-microservice/Dockerfile
     networks:
-        - towing_system_net
+      - towing_system_net
     ports:
-        - "9002:80"
+      - "9002:80"
     env_file:
-        - ../supplier-companies-microservice/supplier-companies-microservice/.env
+      - ../supplier-companies-microservice/supplier-companies-microservice/.env
     volumes:
-        - ../supplier-companies-microservice/supplier-companies-microservice/https:/app/https:ro
-    depends_on: 
-        - rabbit-queue
-        - datasync
-        - api-gateway
+      - ../supplier-companies-microservice/supplier-companies-microservice/https:/app/https:ro
+    depends_on:
+      - rabbit-queue
+      - datasync
+      - api-gateway
 
   orders-microservice:
     container_name: orders-microservice
     image: ${DOCKER_REGISTRY-}ordersmicroservice
     build:
-        context: ../orders-microservice
-        dockerfile: /orders-microservice/Dockerfile
+      context: ../orders-microservice
+      dockerfile: /orders-microservice/Dockerfile
     networks:
-        - towing_system_net
-    ports: 
-        - "9003:80"
+      - towing_system_net
+    ports:
+      - "9003:80"
     env_file:
-        - ../orders-microservice/orders-microservice/.env
+      - ../orders-microservice/orders-microservice/.env
     volumes:
-        - ../orders-microservice/orders-microservice/https:/app/https:ro
+      - ../orders-microservice/orders-microservice/https:/app/https:ro
     depends_on:
-        - rabbit-queue
-        - datasync
-        - api-gateway
+      - rabbit-queue
+      - datasync
+      - api-gateway
 
-  tow-drivers-microservice: 
+  tow-drivers-microservice:
     container_name: tow-drivers-microservice
     image: ${DOCKER_REGISTRY-}towdriversmicroservice
     build:
-        context: ../tow-drivers-microservice
-        dockerfile: /tow-drivers-microservice/Dockerfile
+      context: ../tow-drivers-microservice
+      dockerfile: /tow-drivers-microservice/Dockerfile
     networks:
-        - towing_system_net
+      - towing_system_net
     ports:
-        - "9004:80"
+      - "9004:80"
     env_file:
-        - ../tow-drivers-microservice/tow-drivers-microservice/.env
+      - ../tow-drivers-microservice/tow-drivers-microservice/.env
     volumes:
-        - ../tow-drivers-microservice/tow-drivers-microservice/https:/app/https:ro
+      - ../tow-drivers-microservice/tow-drivers-microservice/https:/app/https:ro
     depends_on:
-        - rabbit-queue
-        - datasync
-        - api-gateway
+      - rabbit-queue
+      - datasync
+      - api-gateway
+      
+  jobs-microservice:
+    container_name: jobs-microservice
+    image: ${DOCKER_REGISTRY-}jobsmicroservice
+    build:
+      context: ../jobs-microservice
+      dockerfile: /jobs-microservice/Dockerfile
+    networks:
+      - towing_system_net
+    ports:
+      - "9005:80"
+    env_file:
+      - ../jobs-microservice/jobs-microservice/.env
+    volumes:
+      - ../jobs-microservice/jobs-microservice/https:/app/https:ro
+    depends_on:
+      - rabbit-queue
+      - datasync
+      - api-gateway
 
 networks:
-    towing_system_net:
-        driver: bridge
-        external: true
+  towing_system_net:
+    driver: bridge
+    external: true

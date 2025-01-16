@@ -18,9 +18,10 @@ namespace Auth.Extensions
             services.AddScoped<ICryptoService, BcryptService>();
             services.AddScoped<IMessageBrokerService, RabbitMQService>();
             services.AddScoped<Logger, DotNetLogger>();
+            services.AddScoped<IImagesCloudService<string>, CloudinaryServices>();
             services.AddSingleton<IPerformanceLogsRepository, MongoPerformanceLogsRespository>();
             services.AddSingleton<IAccountRepository, MongoAccountRepository>();
-            services.AddTransient<IEmailService<EmailInfo>, SmtpService>();
+            services.AddTransient<IEmailService<EmailInfo>, SmtpService>();          
         }
 
         public static void ConfigureAuthorization(this IServiceCollection services)

@@ -15,6 +15,13 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<GlobalExceptionFilter>();
 });
 builder.Services.AddSwagger();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("admin", policy =>
+    {
+        policy.RequireRole("Admin");
+    });
+});
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 var app = builder.Build();
@@ -31,6 +38,7 @@ app.UseAuthorization();
 app.UseSwagger();
 
 app.MapGet("api/auth/health", () => Results.Ok("ok"));
+
 app.MapReverseProxy().RequireAuthorization();
 app.MapControllerRoute(
     name: "default",
