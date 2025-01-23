@@ -124,24 +124,24 @@ services:
       - datasync
       - api-gateway
       
-  # jobs-microservice:
-  #   container_name: jobs-microservice
-  #   image: ${DOCKER_REGISTRY-}jobsmicroservice
-  #   build:
-  #     context: ../jobs-microservice
-  #     dockerfile: /jobs-microservice/Dockerfile
-  #   networks:
-  #     - towing_system_net
-  #   ports:
-  #     - "9005:80"
-  #   env_file:
-  #     - ../jobs-microservice/jobs-microservice/.env
-  #   volumes:
-  #     - ../jobs-microservice/jobs-microservice/https:/app/https:ro
-  #   depends_on:
-  #     - rabbit-queue
-  #     - datasync
-  #     - api-gateway
+  jobs-microservice:
+    container_name: jobs-microservice
+    image: ${DOCKER_REGISTRY-}jobsmicroservice
+    build:
+      context: ../jobs-microservice
+      dockerfile: /jobs-microservice/Dockerfile
+    networks:
+      - towing_system_net
+    ports:
+      - "9005:80"
+    env_file:
+      - ../jobs-microservice/jobs-microservice/.env
+    volumes:
+      - ../jobs-microservice/jobs-microservice/https:/app/https:ro
+    depends_on:
+      - rabbit-queue
+      - datasync
+      - api-gateway
       
   towing-drivers-microservice:
     container_name: towing-drivers-microservice
