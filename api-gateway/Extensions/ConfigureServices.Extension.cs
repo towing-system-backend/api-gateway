@@ -37,6 +37,11 @@ namespace Auth.Extensions
                     policy.RequireAssertion(context =>
                         context.User.IsInRole("Admin") || context.User.IsInRole("Provider"));
                 });
+                options.AddPolicy("admin-or-towDriver-access", policy =>
+                {
+                    policy.RequireAssertion(context =>
+                        context.User.IsInRole("Admin")  || context.User.IsInRole("TowDriver"));
+                });
                 options.AddPolicy("admin-or-cabinOperator-or-towDriver-access", policy =>
                 {
                     policy.RequireAssertion(context =>
@@ -98,14 +103,16 @@ namespace Auth.Extensions
                 c.RoutePrefix = string.Empty; 
             });
         }
-
+        
         public static void ConfigureCors(this IServiceCollection services) 
         {
             services.AddCors(options => 
             { 
-                options.AddPolicy("AllowSpecificOrigin", builder =>
+                options.AddPolicy("AllowAll", builder =>
                 { 
-                    builder.WithOrigins(Environment.GetEnvironmentVariable("FRONTEND_URL")!).AllowAnyHeader().AllowAnyMethod(); 
+                    builder.AllowAnyOrigin() 
+                        .AllowAnyHeader() 
+                        .AllowAnyMethod(); 
                 }); 
             }); 
         }

@@ -142,8 +142,26 @@ services:
       - rabbit-queue
       - datasync
       - api-gateway
-
+      
+  towing-drivers-microservice:
+    container_name: towing-drivers-microservice
+    image: ${DOCKER_REGISTRY-}towingdriversicroservice
+    build:
+      context: ../towing-drivers-microservice
+      dockerfile: /towing-drivers-microservice/Dockerfile
+    networks:
+      - towing_system_net
+    ports:
+      - "9006:80"
+    env_file:
+      - ../towing-drivers-microservice/towing-drivers-microservice/.env
+    volumes:
+      - ../towing-drivers-microservice/towing-drivers-microservice/https:/app/https:ro
+    depends_on:
+      - rabbit-queue
+      - datasync
+      - api-gateway
 networks:
   towing_system_net:
     driver: bridge
-    external: true
+    external: true 
