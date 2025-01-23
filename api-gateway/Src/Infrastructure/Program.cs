@@ -31,12 +31,12 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
+app.UseAuthentication();
 app.UseRouting();
 app.UseCors("AllowSpecificOrigin");
-app.UseAuthentication();
+app.UseCors("AllowAll");
 app.UseAuthorization();
 app.UseSwagger();
-app.UseCors("AllowAll");
 
 app.MapGet("api/auth/health", () => Results.Ok("ok"));
 
